@@ -1,0 +1,236 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26 Gang - Main Zone</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #08080a;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 30px 15px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255, 34, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            animation: pulseBlast 3s infinite alternate;
+        }
+
+        h1 {
+            font-family: 'Permanent Marker', cursive;
+            color: #ff2200;
+            font-size: 36px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #ff0000, 0 0 30px #ff2200;
+            margin-bottom: 5px;
+        }
+
+        .dialogue-box {
+            font-family: 'Permanent Marker', cursive;
+            color: #ffcc00;
+            font-size: 20px;
+            letter-spacing: 1px;
+            margin: 15px auto;
+            min-height: 40px;
+            max-width: 600px;
+            text-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+            animation: textFlicker 2s infinite;
+        }
+
+        .slider-container {
+            max-width: 600px;
+            position: relative;
+            margin: auto;
+            overflow: hidden;
+            border: 4px solid #ff2200;
+            border-radius: 6px;
+            box-shadow: 0 0 30px rgba(255, 34, 0, 0.5);
+            background: #111217;
+        }
+
+        .slide {
+            display: none;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            vertical-align: middle;
+            filter: contrast(115%) brightness(85%);
+        }
+
+        .flash-active img {
+            animation: gunshotFlash 0.4s ease-out forwards;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 15px 12px;
+            color: #ff2200;
+            font-weight: bold;
+            font-size: 22px;
+            background-color: rgba(8, 8, 10, 0.9);
+            border: 2px solid #ff2200;
+            user-select: none;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .prev { left: 0; border-radius: 0 6px 6px 0; }
+        .next { right: 0; border-radius: 6px 0 0 6px; }
+
+        .prev:hover, .next:hover {
+            color: #ffffff;
+            background-color: #ff2200;
+            box-shadow: 0 0 15px #ff2200;
+        }
+
+        @keyframes gunshotFlash {
+            0% { transform: scale(1.05); filter: brightness(250%) sepia(50%) hue-rotate(-50deg); }
+            50% { filter: brightness(150%) saturate(200%); }
+            100% { transform: scale(1); filter: contrast(115%) brightness(85%); }
+        }
+
+        @keyframes pulseBlast {
+            0% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.25); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.4; }
+        }
+
+        @keyframes textFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>26 GANG HEADQUARTERS</h1>
+    
+    <div class="dialogue-box" id="dialogueText">"IF YOU COME AT THE KING, YOU BEST NOT MISS."</div>
+
+    <div class="slider-container" id="sliderContainer">
+        <div class="slide"><img src="IMG_20210812_163806 - Copy.jpg"></div>
+        <div class="slide"><img src="file_00000000f51c72069deea2f3426cf94e.png"></div>
+        <div class="slide"><img src="IMG_20211031_162916.jpg"></div>
+        <div class="slide"><img src="IMG_20210911_083856 - Copy.jpg"></div>
+        <div class="slide"><img src="photo5.jpg"></div>
+        <div class="slide"><img src="photo6.jpg"></div>
+        <div class="slide"><img src="photo7.jpg"></div>
+        <div class="slide"><img src="photo8.jpg"></div>
+        <div class="slide"><img src="photo9.jpg"></div>
+        <div class="slide"><img src="photo10.jpg"></div>
+
+        <button class="prev" onclick="triggerAction(-1)">&#10094;</button>
+        <button class="next" onclick="triggerAction(1)">&#10095;</button>
+    </div>
+
+    <script>
+        let slideIndex = 0;
+        showSlides(slideIndex);
+
+        const dialogues = [
+            '"IF YOU COME AT THE 26 GANG, YOU BEST NOT MISS."',
+            '"WE DON\'T RUN FROM THE FIRE. WE ARE THE FIRE."',
+            '"FEAR IS A LIAR. POWER IS THE ONLY TRUTH HERE."',
+            '"ONE CLICK. ONE SHOT. TOTAL DOMINATION."',
+            '"THE STREETS BELONG TO THE 26 ELITE."',
+            '"GRENADES IN THE AIR, BULLETS IN THE RAIN."',
+            '"RULES ARE FOR THE WEAK. WE WRITE THE DESTINY."',
+            '"SILENCE BEFORE THE STORM. BLAST ON IMPACT."',
+            '"MERCY IS A WORD WE COMPLETELY FORGOT."',
+            '"YOU CROSSED THE LINE. NOW FACE THE WARFOLKS."'
+        ];
+
+        // यह सिस्टम की खुद की सिंथेटिक आवाज़ (Synth Audio) बनाने का फंक्शन है
+        function playSystemSound(type) {
+            try {
+                let context = new (window.AudioContext || window.webkitAudioContext)();
+                let oscillator = context.createOscillator();
+                let gainNode = context.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(context.destination);
+
+                if (type === 'gun') {
+                    // शॉर्ट गनशॉट साउंड इफ़ेक्ट
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(300, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(10, context.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.15);
+                } else {
+                    // डीप ग्रेनेड ब्लास्ट साउंड इफ़ेक्ट
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(120, context.currentTime);
+                    oscillator.frequency.linearRampToValueAtTime(20, context.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.5, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.3);
+                }
+            } catch(e) {
+                console.log("Audio Context Error: ", e);
+            }
+        }
+
+        function triggerAction(n) {
+            // रैंडम तरीके से गन या ब्लास्ट की सिंथेटिक साउंड बजेगी
+            if(Math.random() > 0.5) {
+                playSystemSound('gun');
+            } else {
+                playSystemSound('blast');
+            }
+
+            // सैमसंग फोन के लिए वाइब्रेशन ट्रिगर करना
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 30, 50]); // गोली चलने जैसा झटका महसूस होगा
+            }
+
+            let container = document.getElementById("sliderContainer");
+            container.classList.remove("flash-active");
+            void container.offsetWidth; 
+            container.classList.add("flash-active");
+
+            changeSlide(n);
+        }
+
+        function changeSlide(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function showSlides(n) {
+            let slides = document.getElementsByClassName("slide");
+            let dialogueBox = document.getElementById("dialogueText");
+            
+            if (n >= slides.length) { slideIndex = 0; }
+            if (n < 0) { slideIndex = slides.length - 1; }
+            
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            
+            slides[slideIndex].style.display = "block";
+            dialogueBox.innerHTML = dialogues[slideIndex];
+        }
+    </script>
+
+</body>
+</html>
